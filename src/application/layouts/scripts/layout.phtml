@@ -1,0 +1,116 @@
+<?= $this->doctype() ?>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<title><?=$this->escape($this->title)?></title>
+
+<?php
+$this->headLink()->prependStylesheet($this->baseUrl.'/extjs-ux-resources/grid/filter/style.css');
+$this->headLink()->prependStylesheet($this->baseUrl.'/styles/baricons.css');
+$this->headLink()->prependStylesheet($this->baseUrl.'/styles/buttonmenu.css');
+$this->headLink()->prependStylesheet($this->baseUrl.'/styles/dataview-rmv-photos.css');
+$this->headLink()->prependStylesheet($this->baseUrl.'/styles/main.css');
+$this->headLink()->prependStylesheet($this->baseUrl.'/extjs/resources/css/ext-all.css');
+echo $this->headLink();
+?>
+
+<?php
+// always first
+$this->headScript()->prependFile($this->baseUrl.'/extjs/'.$this->extjsUrl); // 2
+$this->headScript()->prependFile($this->baseUrl.'/extjs/adapter/ext/ext-base.js'); // 1
+// grid filters
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/grid/GridFilters.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/grid/filter/Filter.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/grid/filter/StringFilter.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/grid/filter/DateFilter.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/grid/filter/ListFilter.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/grid/filter/NumericFilter.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/grid/filter/BooleanFilter.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/menu/EditableItem.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/menu/RangeMenu.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/menu/ListMenu.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/menu/TreeMenu.js');
+// to open pdfs in tabs
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/uxmedia/uxmedia.js');
+$this->headScript()->appendFile($this->baseUrl.'/extjs-ux/uxmedia/uxmedia-ie.js');
+// print
+echo $this->headScript();
+?>
+
+<script type="text/javascript">
+	Ext.BLANK_IMAGE_URL = '<?=$this->baseUrl?>/extjs/resources/images/default/s.gif';
+	Ext.SSL_SECURE_URL = '<?=$this->baseUrl?>/extjs/resources/images/default/s.gif';
+</script>
+
+</head>
+<body>
+<?= $this->layout()->content ?>
+<?php if ($this->enableLoginTimer===true) { ?>
+	<script type="text/javascript">
+	Ext.onReady(function(){
+			
+		Ext.namespace('Recon.Session');						
+			
+		Recon.Session.timeout = 4500, // session length in seconds (75 minutes)
+		Recon.Session.exiturl = '<?=$this->baseUrl?>/auth'; // send user here if logging out
+		Recon.Session.activityurl = '<?=$this->baseUrl?>/session/alive'; // ajax server url that refreshes server side session				
+		Recon.Session.windowtimer = 180; // How long to keep alert window open in seconds
+		Recon.Session.windowtitle = 'Your session is about to expire!';		
+		Recon.Session.windowmessage = 'You are about to be logged out due to inactivity. If you wish to remain logged in, please click the "I\'m Still Here" button.';				
+		Recon.Session.pagetitle = document.title;
+		
+		Recon.Session.window = new Ext.util.DelayedTask(function(){
+			
+			Ext.getDoc().set({
+				title: '***  ' +  Recon.Session.windowtitle + '  ****'
+			});
+		
+			Recon.Session.wintimer = setTimeout(
+			
+				function() {
+					window.location = Recon.Session.exiturl
+				},
+				
+				Recon.Session.windowtimer*1000
+			);
+			
+			Ext.MessageBox.buttonText.ok = 'I\'m Still Here';
+			Ext.Msg.show({
+				title: Recon.Session.windowtitle,
+				msg: Recon.Session.windowmessage,
+			  	buttons: Ext.Msg.OK,
+				icon: Ext.MessageBox.WARNING,
+				fn: function(btn,text){
+					if(btn=='ok'){
+						clearTimeout(Recon.Session.wintimer);
+						Recon.Session.window.delay(Recon.Session.timeout*1000);
+						
+						Ext.getDoc().set({
+							title: Recon.Session.pagetitle
+						});
+						
+						Ext.Ajax.request({
+							url: Recon.Session.activityurl
+						});
+						
+					}else{
+						window.location = Recon.Session.exiturl;
+					}
+				
+				}
+			});
+		});
+		
+		// if page gets clicked anywhere reset session
+		Ext.getDoc().on('click', function(){
+			Recon.Session.window.delay(Recon.Session.timeout*1000);
+		});
+		
+		//Kick off the timer
+		Recon.Session.window.delay(Recon.Session.timeout*1000);
+	});
+	</script>
+<?php } ?>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<style type="text/css">
+    #denied-msg {
+        width:300px;
+        font-family:tahoma,arial,verdana,sans-serif;
+        font-size:11px;
+        margin:30px auto 0 auto;
+        background-color:white;
+        border:1px solid black;
+        text-align:center;
+        color:#A90600;
+        font-weight:bold;
+        padding:5px;
+    }
+</style>
+<div id="denied-msg">
+Access Denied<br>
+<br>
+Sorry, you are not allowed to view this page.
+</div>
+<!-- application/views/scripts/auth/accessdenied.phtml -->
+<script type="text/javascript">
+Ext.onReady(function(){
+	Ext.QuickTips.init();
+	var winBtnMenu = new Window_ButtonMenu;
+	winBtnMenu.show();
+});
+</script>
